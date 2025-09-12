@@ -104,3 +104,7 @@ variable "bastion_module_ami_id" {
 variable "bastion_module_instance_type" {
   type = string
 }
+
+variable "key_name" {
+  type = string
+}

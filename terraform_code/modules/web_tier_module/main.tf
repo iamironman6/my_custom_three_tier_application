@@ -11,7 +11,7 @@ resource "aws_lb" "web_tier_alb" {
 }
 
 resource "aws_lb_target_group" "web_tier_tg" {
-  name     = "ALB-Target-Group"
+  name     = "Web-ALB-Target-Group"
   protocol = "HTTP"
   port     = 80
   vpc_id   = var.vpc_id
@@ -24,7 +24,7 @@ resource "aws_lb_target_group" "web_tier_tg" {
   }
 }
 
-resource "aws_lb_listener" "listener" {
+resource "aws_lb_listener" "web_listener" {
   load_balancer_arn = aws_lb.web_tier_alb.arn
   protocol          = "HTTP"
   port              = 80
@@ -39,14 +39,16 @@ resource "aws_lb_listener" "listener" {
   }
 }
 
-resource "aws_launch_configuration" "web_servers_template" {
+resource "aws_launch_template" "web_servers_template" {
   name_prefix                 = "web_server_"
   instance_type               = var.instance_type
   image_id                    = var.ami
-  security_groups             = [var.web_tier_sg_id]
   key_name                    = var.key_name
-  associate_public_ip_address = true
-  user_data                   = file("${path.module}/userdata.sh")
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups = [var.web_tier_sg_id]
+  }
+  user_data                   = base64encode(file("${path.module}/userdata.sh"))
 
   lifecycle {
     create_before_destroy = true
@@ -59,7 +61,10 @@ resource "aws_autoscaling_group" "MyASG" {
   min_size             = var.min_size
   max_size             = var.max_size
   desired_capacity     = var.desired_size
-  launch_configuration = aws_launch_configuration.web_servers_template.arn
+  launch_template {
+    id      = aws_launch_template.web_servers_template.id
+    version = "$Latest"
+  }
   vpc_zone_identifier  = [var.pub_sub1_id, var.pub_sub2_id]
 }
 
