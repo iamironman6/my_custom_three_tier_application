@@ -37,26 +37,6 @@ variable "db_tier_subnet" {
   description = "Subnet value for the db-tier servers/applications"
 }
 
-variable "vpc_id" {
-  type        = string
-  description = "The ID of the VPC to associate with the security group"
-}
-
-variable "web_tier_sg_id" {
-  description = " id of the web tier sg"
-  type        = string
-}
-
-variable "pub_sub1_id" {
-  description = "id of the public subnet1"
-  type        = string
-}
-
-variable "pub_sub2_id" {
-  description = "id of the public subnet2"
-  type        = string
-}
-
 variable "web_tier_ami" {
   type        = string
   description = "ami id of the instances"
@@ -67,10 +47,6 @@ variable "web_tier_instance_type" {
   description = "instace type value of the instances"
 }
 
-variable "key_name" {
-  type        = string
-  description = "name of the aws key name"
-}
 
 variable "web_tier_instance_min_size" {
   type    = number
@@ -97,21 +73,6 @@ variable "app_tier_instance_type" {
   description = "value of the instance type"
 }
 
-variable "app_tier_sg_id" {
-  type        = string
-  description = "id of the app tier security group"
-}
-
-variable "pvt_sub1_id" {
-  type        = string
-  description = "id of the private subnet1"
-}
-
-variable "pvt_sub2_id" {
-  type        = string
-  description = "id of the private subnet2"
-}
-
 variable "app_tier_instance_min_size" {
   type    = number
   default = 1
@@ -135,18 +96,11 @@ variable "db_tier_instance_type" {
   type = string
 }
 
-variable "db_tier_sg_id" {
-  type = string
-}
 
 variable "bastion_module_ami_id" {
   type = string
 }
 
 variable "bastion_module_instance_type" {
-  type = string
-}
-
-variable "bastion_host_sg_id" {
   type = string
 }
