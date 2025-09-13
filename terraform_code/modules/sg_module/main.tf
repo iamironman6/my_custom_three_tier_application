@@ -27,12 +27,30 @@ resource "aws_vpc_security_group_ingress_rule" "allow_inbound_http_traffic" {
 }
 
 resource "aws_vpc_security_group_egress_rule" "allow_outbound_web_traffic" {
-  description       = "Allow outbound web traffic to web tier servers"
+  description       = "Allow outbound web traffic to app tier servers"
   security_group_id = aws_security_group.web-tier-sg.id
   cidr_ipv4         = var.app_tier_subnet
   ip_protocol       = "tcp"
   from_port         = 3000
   to_port           = 3000
+}
+
+resource "aws_vpc_security_group_egress_rule" "allow_outbound_http_web_traffic" {
+  description       = "Allow outbound http web traffic to app tier servers"
+  security_group_id = aws_security_group.web-tier-sg.id
+  cidr_ipv4         = var.app_tier_subnet
+  ip_protocol       = "tcp"
+  from_port         = 80
+  to_port           = 80
+}
+
+resource "aws_vpc_security_group_egress_rule" "allow_outbound_http_web_traffic" {
+  description       = "Allow outbound https web traffic to internet to download files from S3 bucket"
+  security_group_id = aws_security_group.web-tier-sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "tcp"
+  from_port         = 443
+  to_port           = 443
 }
 
 # App-Tier-Secutiy-Group
@@ -61,6 +79,15 @@ resource "aws_vpc_security_group_egress_rule" "allow_outbound_db_traffic" {
   from_port         = 3306
   to_port           = 3306
   cidr_ipv4         = var.db_tier_subnet
+}
+
+resource "aws_vpc_security_group_egress_rule" "allow_outbound_http_web_traffic" {
+  description       = "Allow outbound https app traffic to internet to download files from S3 bucket"
+  security_group_id = aws_security_group.app-tier-sg.id
+  cidr_ipv4         = "0.0.0.0/0"
+  ip_protocol       = "tcp"
+  from_port         = 443
+  to_port           = 443
 }
 
 # DataBase-Tier-Security-Group

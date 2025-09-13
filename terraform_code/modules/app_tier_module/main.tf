@@ -13,14 +13,16 @@ resource "aws_lb" "app_tier_alb" {
 resource "aws_lb_target_group" "app_tier_tg" {
   name     = "APP-ALB-Target-Group"
   protocol = "HTTP"
-  port     = 80
+  port     = 3000
   vpc_id   = var.vpc_id
+  target_type = "instance"
 
   health_check {
-    path     = "/"
+    path     = "/api/data"
     port     = "traffic-port"
     interval = 30
     timeout  = 5
+    matcher = 200
   }
 }
 
