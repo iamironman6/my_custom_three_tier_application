@@ -15,7 +15,7 @@ sudo systemctl enable nginx
 
 
 # Replace this with the actual ALB DNS name passed via Terraform
-APP_ALB_DNS_NAME="${app_alb_dns_name}"
+app_alb_dns_name="${app_alb_dns_name}"
 
 # Replace default nginx config to add reverse proxy to App Tier ALB
 cat <<EOF > /etc/nginx/sites-available/default
@@ -29,7 +29,7 @@ server {
     }
 
     location /api/ {
-        proxy_pass http://${APP_ALB_DNS_NAME};
+        proxy_pass http://${app_alb_dns_name};
         proxy_http_version 1.1;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;

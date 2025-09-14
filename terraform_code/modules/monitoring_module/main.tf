@@ -9,7 +9,7 @@ resource "aws_sns_topic" "cpu_alerts" {
 resource "aws_sns_topic_subscription" "email_sub" {
   topic_arn = aws_sns_topic.cpu_alerts.arn
   protocol  = "email"
-  endpoint  = var.email  # <-- Replace with your email or other endpoint
+  endpoint  = var.email # <-- Replace with your email or other endpoint
 }
 
 ###########################
@@ -21,19 +21,19 @@ resource "aws_cloudwatch_metric_alarm" "asg_high_cpu" {
   comparison_operator = "GreaterThanOrEqualToThreshold"
 
   evaluation_periods = var.evaluation_periods
-  period              = var.cpu_period
-  threshold           = var.cpu_threshold_high
+  period             = var.cpu_period
+  threshold          = var.cpu_threshold_high
 
-  namespace = "AWS/EC2"
-  statistic = "Average"
+  namespace   = "AWS/EC2"
+  statistic   = "Average"
   metric_name = "CPUUtilization"
 
   dimensions = {
     AutoScalingGroupName = var.asg_name
   }
 
-  alarm_actions = [ aws_sns_topic.cpu_alerts.arn ]
-  ok_actions    = [ aws_sns_topic.cpu_alerts.arn ]
+  alarm_actions = [aws_sns_topic.cpu_alerts.arn]
+  ok_actions    = [aws_sns_topic.cpu_alerts.arn]
 
   # Handle missing data as you prefer
   treat_missing_data = "missing"
