@@ -31,6 +31,7 @@ module "my_custom_web_tier_module" {
   min_size       = var.web_tier_instance_min_size
   max_size       = var.web_tier_instance_max_size
   desired_size   = var.web_tier_instance_desired_size
+  app_alb_dns_name = module.my_custom_app_tier_module.app_tier_alb_dns
 }
 
 module "my_custom_app_tier_module" {
@@ -67,3 +68,12 @@ module "my_custom_bastion_module" {
   key_name           = var.key_name
 }
 
+module "my_custom_monitoring_module" {
+  source = "./modules/monitoring_module"
+  asg_name     = module.my_custom_app_tier_module.app_tier_asg_name
+  email        = var.alert_email
+  cpu_threshold_high  = 80                          # or use var.cpu_threshold_high if declared in root variables.tf
+  cpu_period         = 120
+  evaluation_periods  = 2
+  sns_topic_name      = "app-tier-cpu-alerts"
+}

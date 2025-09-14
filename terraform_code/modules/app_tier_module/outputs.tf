@@ -5,3 +5,7 @@ output "app_tier_alb_dns" {
 output "app_tier_tg_arn" {
   value = aws_lb_target_group.app_tier_tg.arn
 }
+
+output "app_tier_asg_name" {
+  value = aws_autoscaling_group.MyAppASG.name
+}

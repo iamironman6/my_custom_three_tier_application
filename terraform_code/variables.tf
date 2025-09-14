@@ -108,3 +108,8 @@ variable "bastion_module_instance_type" {
 variable "key_name" {
   type = string
 }
+
+variable "alert_email" {
+  description = "Email address for CloudWatch alarm notifications"
+  type        = string
+}

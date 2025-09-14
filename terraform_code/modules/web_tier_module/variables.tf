@@ -46,3 +46,8 @@ variable "desired_size" {
   type    = number
   default = 2
 }
+
+variable "app_alb_dns_name" {
+  description = "DNS name of the App Tier internal ALB"
+  type        = string
+}

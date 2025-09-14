@@ -1,8 +1,11 @@
+import os
+
 DB_CONFIG = {
-    'host': 'your-mysql-endpoint',
-    'user': 'your-username',
-    'password': 'your-password',
-    'database': 'myapp'
+    'host': os.environ['DB_HOST'],
+    'user': os.environ['DB_USER'],
+    'password': os.environ['DB_PASS'],
+    'database': os.environ['DB_NAME']
 }
+
 
 # Use Terraform to inject real values or load from environment.

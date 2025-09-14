@@ -4,7 +4,7 @@ from db_config import DB_CONFIG
 import boto3
 from datetime import datetime, timedelta
 
-app = Flask(__name__, static_folder='../frontend')
+app = Flask(__name__, static_folder='../frontend_files')
 
 # MySQL DB connection
 def get_db_connection():
@@ -83,4 +83,4 @@ def list_instances():
     return jsonify(result)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=3000)

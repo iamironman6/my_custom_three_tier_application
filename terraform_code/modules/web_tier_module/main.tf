@@ -22,7 +22,7 @@ resource "aws_lb_target_group" "web_tier_tg" {
     port     = "traffic-port"
     interval = 30
     timeout  = 5
-    matcher = 200
+    matcher = "200"
   }
 }
 
@@ -37,7 +37,9 @@ resource "aws_lb_listener" "web_listener" {
   }
 
   tags = {
+    Name         = "web-server"
     Architecture = "three-tier"
+    Role         = "web"
   }
 }
 
@@ -50,10 +52,18 @@ resource "aws_launch_template" "web_servers_template" {
     associate_public_ip_address = true
     security_groups = [var.web_tier_sg_id]
   }
-  user_data                   = base64encode(file("${path.module}/userdata.sh"))
+  # user_data                   = base64encode(file("${path.module}/userdata.sh"))
+  user_data = base64encode(templatefile("${path.module}/userdata.sh", {
+    app_alb_dns_name = var.app_alb_dns_name
+  })) 
 
   lifecycle {
     create_before_destroy = true
+  }
+  tags = {
+    Name         = "web-server"
+    Architecture = "three-tier"
+    Role         = "web"
   }
 
 }
