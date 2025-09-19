@@ -1,5 +1,10 @@
 resource "aws_vpc" "myvpc" {
   cidr_block = var.vpc_cidr_block_value
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  tags = {
+    Name = "my-custom-vpc"
+  }
 }
 
 resource "aws_subnet" "public-subnet-1" {
@@ -54,7 +59,7 @@ resource "aws_route_table_association" "rta2" {
 }
 
 resource "aws_eip" "nat" {
-  domain = "vpc"
+  # no domain attribute here
 }
 
 resource "aws_nat_gateway" "nat_gateway" {

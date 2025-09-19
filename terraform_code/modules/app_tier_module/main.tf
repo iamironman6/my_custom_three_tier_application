@@ -2,7 +2,7 @@ resource "aws_lb" "app_tier_alb" {
   name               = "app-tier-load-balancer"
   internal           = true
   load_balancer_type = "application"
-  security_groups    = [var.app_tier_sg_id]
+  security_groups    = [var.app_alb_sg_id]
   subnets            = [var.pvt_sub1_id, var.pvt_sub2_id]
 
   enable_deletion_protection = false
@@ -57,10 +57,13 @@ resource "aws_launch_template" "app_servers_template" {
     create_before_destroy = true
   }
 
-  tags = {
-    Name         = "app-server"
-    Architecture = "three-tier"
-    Role         = "app"
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name         = "app-server"
+      Architecture = "three-tier"
+      Role         = "app"
+    }
   }
 }
 
@@ -79,6 +82,7 @@ resource "aws_autoscaling_group" "MyAppASG" {
   health_check_type         = "EC2"
   force_delete              = true
   wait_for_capacity_timeout = "0"
+
   tag {
     key                 = "Name"
     value               = "AppTierInstance"
@@ -91,6 +95,25 @@ resource "aws_autoscaling_attachment" "asg_attach" {
   autoscaling_group_name = aws_autoscaling_group.MyAppASG.name
   lb_target_group_arn    = aws_lb_target_group.app_tier_tg.arn
 }
+
+data "aws_autoscaling_group" "app_asg" {
+  name = aws_autoscaling_group.MyAppASG.name
+}
+
+# Get running EC2 instances with Role = app
+data "aws_instances" "app_instances" {
+  filter {
+    name   = "tag:Role"
+    values = ["app"]
+  }
+}
+
+data "aws_instance" "app_instance_details" {
+  for_each    = toset(data.aws_instances.app_instances.ids)
+  instance_id = each.value
+}
+
+
 
 
 #########################################

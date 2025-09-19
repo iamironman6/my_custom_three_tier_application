@@ -2,11 +2,6 @@ variable "vpc_id" {
   description = "Id of the vpc"
 }
 
-variable "web_tier_sg_id" {
-  description = " id of the web tier sg"
-  type        = string
-}
-
 variable "pub_sub1_id" {
   description = "id of the public subnet1"
   type        = string
@@ -50,4 +45,13 @@ variable "desired_size" {
 variable "app_alb_dns_name" {
   description = "DNS name of the App Tier internal ALB"
   type        = string
+}
+
+variable "web_tier_sg_id" {
+  description = " id of the web tier sg"
+  type        = string
+}
+
+variable "web_alb_sg_id" {
+  type = string
 }

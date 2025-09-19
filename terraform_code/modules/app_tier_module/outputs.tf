@@ -9,3 +9,7 @@ output "app_tier_tg_arn" {
 output "app_tier_asg_name" {
   value = aws_autoscaling_group.MyAppASG.name
 }
+
+output "app_instance_private_ips" {
+  value = [for inst in data.aws_instance.app_instance_details : inst.private_ip]
+}

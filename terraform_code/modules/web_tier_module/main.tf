@@ -2,7 +2,7 @@ resource "aws_lb" "web_tier_alb" {
   name               = "web-tier-load-balancer"
   internal           = false
   load_balancer_type = "application"
-  security_groups    = [var.web_tier_sg_id]
+  security_groups    = [var.web_alb_sg_id]
   subnets            = [var.pub_sub1_id, var.pub_sub2_id]
 
   tags = {
@@ -44,10 +44,11 @@ resource "aws_lb_listener" "web_listener" {
 }
 
 resource "aws_launch_template" "web_servers_template" {
-  name_prefix                 = "web_server_"
+  name_prefix = "web_server_"
   instance_type               = var.instance_type
   image_id                    = var.ami
   key_name                    = var.key_name
+
   network_interfaces {
     associate_public_ip_address = true
     security_groups = [var.web_tier_sg_id]
@@ -60,10 +61,14 @@ resource "aws_launch_template" "web_servers_template" {
   lifecycle {
     create_before_destroy = true
   }
-  tags = {
-    Name         = "web-server"
-    Architecture = "three-tier"
-    Role         = "web"
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name         = "web-server"
+      Architecture = "three-tier"
+      Role         = "web"
+    }
   }
 
 }
@@ -77,6 +82,9 @@ resource "aws_autoscaling_group" "MyASG" {
     id      = aws_launch_template.web_servers_template.id
     version = "$Latest"
   }
+  lifecycle {
+    create_before_destroy = true
+  }
   vpc_zone_identifier  = [var.pub_sub1_id, var.pub_sub2_id]
 }
 
@@ -84,5 +92,3 @@ resource "aws_autoscaling_attachment" "asg_attach" {
   autoscaling_group_name = aws_autoscaling_group.MyASG.name
   lb_target_group_arn    = aws_lb_target_group.web_tier_tg.arn
 }
-
-

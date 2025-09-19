@@ -3,8 +3,13 @@ import mysql.connector
 from db_config import DB_CONFIG
 import boto3
 from datetime import datetime, timedelta
+import os
 
-app = Flask(__name__, static_folder='../frontend_files')
+base_dir = os.path.dirname(os.path.abspath(__file__))
+static_dir = os.path.join(base_dir, 'frontend_files')
+app = Flask(__name__, static_folder=static_dir)
+
+#app = Flask(__name__, static_folder='../frontend_files')
 
 # MySQL DB connection
 def get_db_connection():
@@ -34,9 +39,9 @@ def get_instance_metrics(instance_id):
     }
 
 # Serve frontend
-@app.route('/')
-def serve_frontend():
-    return send_from_directory(app.static_folder, 'index.html')
+#@app.route('/')
+#def serve_frontend():
+#    return send_from_directory(app.static_folder, 'index.html')
 
 # Data from MySQL
 @app.route('/api/data', methods=['GET'])

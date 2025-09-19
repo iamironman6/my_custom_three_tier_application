@@ -1,17 +1,38 @@
 #!/bin/bash
-# Basic user data for Bastion Host (secure version)
+# Bootstrap script for Ubuntu Bastion Host
 
-# Update system packages
-yum update -y
+# Update system and install packages
+sudo apt-get update && sudo apt-get upgrade -y
+sudo apt-get install -y openssh-client git htop curl unzip
 
-# Install SSH client tools
-yum install -y openssh-clients git htop
+# Create known_hosts file to prevent SSH prompts
+sudo mkdir -p /home/ubuntu/.ssh
+sudo chown -R ubuntu:ubuntu /home/ubuntu/.ssh
 
-# (Optional) Pre-scan known hosts for App and DB servers
-APP_SERVER_IP="<APP_SERVER_PRIVATE_IP>"
-DB_SERVER_IP="<DB_SERVER_PRIVATE_IP>"
+# DB server known hosts
+%{ for ip in db_ips ~}
+ssh-keyscan -H ${ip} >> /home/ubuntu/.ssh/known_hosts
+%{ endfor ~}
 
-ssh-keyscan -H $APP_SERVER_IP >> /home/ec2-user/.ssh/known_hosts
-ssh-keyscan -H $DB_SERVER_IP >> /home/ec2-user/.ssh/known_hosts
+# App server IPs
+%{ for ip in app_ips ~}
+ssh-keyscan -H ${ip} >> /home/ubuntu/.ssh/known_hosts
+%{ endfor ~}
 
-# Done — admin will use their own SSH key to connect via Bastion
+
+# Download private key from S3
+sudo curl -o /home/ubuntu/key-pair.pem "https://my-custom-three-tier-app-bucket.s3.amazonaws.com/key-pair.pem"
+
+# Secure the key
+sudo chmod 400 /home/ubuntu/key-pair.pem
+sudo chown ubuntu:ubuntu /home/ubuntu/key-pair.pem
+
+
+
+: << 'BLOCK_COMMENT'
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"  #Download the AWS CLI v2 installer
+unzip awscliv2.zip  # Unzip the installer
+sudo ./aws/install  # Run the install script
+export PATH=$PATH:/usr/local/bin 
+aws --version
+BLOCK_COMMENT

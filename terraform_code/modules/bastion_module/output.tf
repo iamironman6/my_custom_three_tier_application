@@ -1,7 +1,4 @@
-output "jump_server1_id" {
-  value = aws_instance.jump-server-1.id
-}
-
-output "jump_server2_id" {
-  value = aws_instance.jump-server-2.id
+output "jump_server_public_ip" {
+  description = "Public IP address of the bastion host"
+  value = aws_instance.jump-server.public_ip
 }

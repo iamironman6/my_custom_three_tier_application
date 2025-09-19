@@ -17,11 +17,6 @@ variable "instance_type" {
   description = "value of the instance type"
 }
 
-variable "app_tier_sg_id" {
-  type        = string
-  description = "id of the app tier security group"
-}
-
 variable "pvt_sub1_id" {
   type        = string
   description = "id of the private subnet1"
@@ -45,4 +40,17 @@ variable "max_size" {
 variable "desired_size" {
   type    = number
   default = 2
+}
+
+variable "web_tier_sg_id" {
+  type = string
+}
+
+variable "app_tier_sg_id" {
+  type        = string
+  description = "id of the app tier security group"
+}
+
+variable "app_alb_sg_id" {
+  type = string
 }

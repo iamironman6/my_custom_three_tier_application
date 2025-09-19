@@ -1,14 +1,21 @@
 #!/bin/bash
 # DB Server bootstrap - Ubuntu
 
-apt update -y && apt upgrade -y
-apt install -y mysql-server
+# Update packages and install MySQL and required tools
+sudo apt-get update
+sudo apt-get upgrade -y
+sudo apt-get install -y mysql-server 
+sudo apt-get install -y curl 
+sudo apt-get install -y unzip
 
-systemctl start mysql
-systemctl enable mysql
+# Enable and start MySQL service
+sudo systemctl start mysql
+sudo systemctl enable mysql
 
-# Optional: If you want to load DB schema from backend/db_config.py or elsewhere,
-# You could download SQL files similarly from S3 and import here
+# Download DB schema from GitHub repo
+cd /tmp
+sudo curl -L -o db.zip https://github.com/iamironman6/my_custom_three_tier_application/archive/refs/heads/main.zip
+sudo unzip db.zip
 
-aws s3 cp s3://my-custom-three-tier-app-bucket/db_files/schema.sql /tmp/schema.sql
-mysql -u root < /tmp/schema.sql
+# Load schema into MySQL
+mysql -u root < my_custom_three_tier_application-main/terraform_code/db_files/schema.sql
