@@ -34,6 +34,7 @@ module "my_custom_web_tier_module" {
   max_size         = var.web_tier_instance_max_size
   desired_size     = var.web_tier_instance_desired_size
   app_alb_dns_name = module.my_custom_app_tier_module.app_tier_alb_dns
+  depends_on = [ module.my_custom_app_tier_module ]
 }
 
 module "my_custom_app_tier_module" {
@@ -50,6 +51,13 @@ module "my_custom_app_tier_module" {
   min_size       = var.app_tier_instance_min_size
   max_size       = var.app_tier_instance_max_size
   desired_size   = var.app_tier_instance_desired_size
+  db_host = module.my_custom_db_tier_module.db_instance_private_ips
+  db_user = local.db_user
+  db_pass = local.db_pass
+  db_name = local.db_name
+  depends_on = [ module.my_custom_db_tier_module ]
+  aws_root_access_key = var.aws_root_access_key
+  aws_root_secret_key = var.aws_root_secret_key
 }
 
 module "my_custom_db_tier_module" {
@@ -60,6 +68,9 @@ module "my_custom_db_tier_module" {
   pvt_sub1_id   = module.my_custom_vpc.pvt_sub1_id
   pvt_sub2_id   = module.my_custom_vpc.pvt_sub2_id
   key_name      = var.key_name
+  db_user = local.db_user
+  db_pass = local.db_pass
+  db_name = local.db_name
 }
 
 module "my_custom_bastion_module" {
@@ -71,6 +82,7 @@ module "my_custom_bastion_module" {
   key_name           = var.key_name
   app_instance_private_ips = module.my_custom_app_tier_module.app_instance_private_ips  # App IPs from ASG output
   db_instance_private_ips  = module.my_custom_db_tier_module.db_instance_private_ips   # DB IPs from EC2 outputs
+  depends_on = [ module.my_custom_app_tier_module, module.my_custom_db_tier_module ]
 }
 
 module "my_custom_monitoring_module" {

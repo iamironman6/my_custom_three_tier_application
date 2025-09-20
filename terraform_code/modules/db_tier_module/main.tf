@@ -5,8 +5,13 @@ resource "aws_instance" "db_server1" {
   subnet_id = var.pvt_sub1_id
   associate_public_ip_address = false
   key_name = var.key_name
-  user_data = file("${path.module}/userdata.sh")
-  
+  #user_data = file("${path.module}/userdata.sh")
+  user_data = base64encode(templatefile("${path.module}/userdata.sh", {
+    db_name = var.db_name,
+    db_user = var.db_user,
+    db_pass = var.db_pass
+  }))
+
   tags = {
     tier = "db"
   }
@@ -23,8 +28,12 @@ resource "aws_instance" "db_server2" {
   subnet_id = var.pvt_sub2_id
   associate_public_ip_address = false
   key_name = var.key_name
-  user_data = file("${path.module}/userdata.sh")
-  
+  #user_data = file("${path.module}/userdata.sh")
+  user_data = base64encode(templatefile("${path.module}/userdata.sh", {
+    db_name = var.db_name,
+    db_user = var.db_user,
+    db_pass = var.db_pass
+  }))
   tags = {
     tier = "db"
   }

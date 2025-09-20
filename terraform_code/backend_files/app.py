@@ -43,49 +43,62 @@ def get_instance_metrics(instance_id):
 #def serve_frontend():
 #    return send_from_directory(app.static_folder, 'index.html')
 
-# Data from MySQL
+@app.route("/healthz")
+def health_check():
+    return "OK", 200
+
 @app.route('/api/data', methods=['GET'])
 def get_data():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT message FROM messages LIMIT 1")
-    result = cursor.fetchone()
-    cursor.close()
-    conn.close()
-    return jsonify({'message': result[0] if result else 'No data'})
+    try:
+        conn = mysql.connector.connect(
+            host=DB_CONFIG['host'],
+            user=DB_CONFIG['user'],
+            password=DB_CONFIG['password'],
+            database=DB_CONFIG['database']
+        )
+        cursor = conn.cursor()
+        cursor.execute("SELECT message FROM messages LIMIT 1")
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        if result:
+            return jsonify({'message': result[0]}), 200
+        else:
+            return jsonify({'message': 'No data'}), 200
+    except mysql.connector.Error as err:
+        # Log the error, return a 500 status
+        return jsonify({'error': str(err)}), 500
 
-# EC2 instance + metrics info
 @app.route('/api/instances', methods=['GET'])
 def list_instances():
-    ec2 = boto3.resource('ec2', region_name='us-east-1')
-    instances = ec2.instances.all()
+    try:
+        ec2 = boto3.resource('ec2', region_name='us-east-1')
+        instances = ec2.instances.all()
 
-    result = {
-        'app': [],
-        'web': [],
-        'db': []
-    }
+        result = {'app': [], 'web': [], 'db': []}
+        for instance in instances:
+            role = 'other'
+            for tag in instance.tags or []:
+                if tag['Key'].lower() == 'role':
+                    role = tag['Value'].lower()
 
-    for instance in instances:
-        role = 'other'
-        for tag in instance.tags or []:
-            if tag['Key'].lower() == 'role':
-                role = tag['Value'].lower()
+            metrics = get_instance_metrics(instance.id)
+            instance_data = {
+                'id': instance.id,
+                'type': instance.instance_type,
+                'state': instance.state['Name'],
+                'cpu': f"{metrics['cpu']}%",
+                'memory': metrics['memory']
+            }
 
-        metrics = get_instance_metrics(instance.id)
+            if role in result:
+                result[role].append(instance_data)
 
-        instance_data = {
-            'id': instance.id,
-            'type': instance.instance_type,
-            'state': instance.state['Name'],
-            'cpu': f"{metrics['cpu']}%",
-            'memory': metrics['memory']
-        }
-
-        if role in result:
-            result[role].append(instance_data)
-
-    return jsonify(result)
+        return jsonify(result), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
+    # Using host=0.0.0.0 so ALB can reach
     app.run(host='0.0.0.0', port=3000)
+

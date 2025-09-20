@@ -54,3 +54,34 @@ variable "app_tier_sg_id" {
 variable "app_alb_sg_id" {
   type = string
 }
+
+variable "db_host" {
+  type        = string
+  description = "The database host (RDS endpoint or IP)"
+}
+
+variable "db_user" {
+  type        = string
+  description = "Database username"
+}
+
+variable "db_pass" {
+  type        = string
+  description = "Database password"
+  sensitive   = true
+}
+
+variable "db_name" {
+  type        = string
+  description = "Database name"
+}
+
+variable "aws_root_access_key" {
+  type      = string
+  sensitive = true
+}
+
+variable "aws_root_secret_key" {
+  type      = string
+  sensitive = true
+}

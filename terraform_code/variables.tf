@@ -113,3 +113,13 @@ variable "alert_email" {
   description = "Email address for CloudWatch alarm notifications"
   type        = string
 }
+
+variable "aws_root_access_key" {
+  type      = string
+  sensitive = true
+}
+
+variable "aws_root_secret_key" {
+  type      = string
+  sensitive = true
+}
